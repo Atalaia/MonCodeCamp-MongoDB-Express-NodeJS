@@ -1,0 +1,33 @@
+<%- include("../partials/header") %>
+
+<div class="container">
+    <header class="jumbotron">
+        <div class="container">
+
+            <h1>Welcome To MonCodeCamp!</h1>
+            <p>View our hand-picked code camps from all over the world</p>
+            <p>
+                <a class="btn btn-primary btn-large" href="/codecamps/new">Add New Code Camp</a>
+            </p>
+        </div>
+    </header>
+
+    <div class="row text-center" style="display: flex; flex-wrap: wrap;">
+        <% codecamps.forEach(function(codecamp) { %>
+        <div class="col-md-3 col-sm-6">
+            <div class="thumbnail">
+                <img src="<%= codecamp.image %>" alt="Code Camp Image" width="250px">
+                <div class="caption">
+                    <h4><%= codecamp.name %></h4>
+                </div>
+                <p>
+                    <a href="/codecamps/<%= codecamp._id %>" class="btn btn-primary">More Info</a>
+                </p>
+            </div>
+        </div>
+        <% }); %>
+    </div>
+
+</div>
+
+<%- include("../partials/footer") %>
