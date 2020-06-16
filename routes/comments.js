@@ -32,8 +32,15 @@ router.post("/", isLoggedIn, function (req, res) {
                 if (err) {
                     console.log(err);
                 } else {
+                    // add username and id to comment
+                    comment.author.id = req.user._id;
+                    comment.author.username = req.user.username;
+                    console.log("New comment's username will be: " + req.user.username);
+                    // save comment 
+                    comment.save();
                     codecamp.comments.push(comment);
                     codecamp.save();
+                    console.log(comment);
                     res.redirect("/codecamps/" + codecamp._id);
                 }
             });

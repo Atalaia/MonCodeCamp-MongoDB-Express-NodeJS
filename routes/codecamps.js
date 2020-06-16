@@ -19,11 +19,16 @@ router.get("/", function (req, res) {
 });
 
 // CREATE - add new code camp to database
-router.post("/", function (req, res) {
+router.post("/", isLoggedIn, function (req, res) {
     var name = req.body.name;
     var image = req.body.image;
     var desc = req.body.description;
-    var newCodeCamp = { name: name, image: image, description: desc };
+    var author = {
+        id: req.user._id,
+        username: req.user.username
+    }
+    var newCodeCamp = { name: name, image: image, description: desc, author: author };
+    // Create a new code camp and save to DB
     Codecamp.create(newCodeCamp, function (err, newlyCreated) {
         if (err) {
             console.log(err);
@@ -36,7 +41,7 @@ router.post("/", function (req, res) {
 });
 
 // NEW - show form to create new code camp
-router.get("/new", function (req, res) {
+router.get("/new", isLoggedIn, function (req, res) {
     res.render("codecamps/new.ejs");
 });
 
@@ -53,5 +58,37 @@ router.get("/:id", function (req, res) {
         }
     });
 });
+
+// Edit code camp route - form edit
+router.get("/:id/edit", function (req, res) {
+    Codecamp.findById(req.params.id, function (err, foundCodecamp) {
+        if (err) {
+            res.redirect("/codecamps")
+        } else {
+            res.render("codecamps/edit", { codecamp: foundCodecamp });
+        }
+    });
+});
+
+// Update code camp route
+router.put("/:id", function (req, res) {
+    // find and update the correct code camp
+    Codecamp.findByIdAndUpdate(req.params.id, req.body.codecamp, function (err, updatedCodecamp) {
+        if (err) {
+            res.redirect("/codecamps");
+        } else {
+            // redirect to show page
+            res.redirect("/codecamps/" + req.params.id);
+        }
+    });
+});
+
+// middleware
+function isLoggedIn(req, res, next) {
+    if (req.isAuthenticated()) {
+        return next();
+    }
+    res.redirect("/login");
+}
 
 module.exports = router;
