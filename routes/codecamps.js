@@ -61,18 +61,14 @@ router.get("/:id", function (req, res) {
 });
 
 // Edit code camp route - form edit
-router.get("/:id/edit", function (req, res) {
+router.get("/:id/edit", checkCodecampOwnership, function (req, res) {
     Codecamp.findById(req.params.id, function (err, foundCodecamp) {
-        if (err) {
-            res.redirect("/codecamps")
-        } else {
-            res.render("codecamps/edit", { codecamp: foundCodecamp });
-        }
+        res.render("codecamps/edit", { codecamp: foundCodecamp });
     });
 });
 
 // Update code camp route
-router.put("/:id", function (req, res) {
+router.put("/:id", checkCodecampOwnership, function (req, res) {
     // find and update the correct code camp
     Codecamp.findByIdAndUpdate(req.params.id, req.body.codecamp, function (err, updatedCodecamp) {
         if (err) {
@@ -85,7 +81,7 @@ router.put("/:id", function (req, res) {
 });
 
 // Destroy code camp route
-router.delete("/:id", function (req, res) {
+router.delete("/:id", checkCodecampOwnership, function (req, res) {
     Codecamp.findByIdAndRemove(req.params.id, function (err, codecampRemoved) {
         if (err) {
             console.log(err);
@@ -107,6 +103,26 @@ function isLoggedIn(req, res, next) {
         return next();
     }
     res.redirect("/login");
+}
+
+function checkCodecampOwnership(req, res, next) {
+    // check if user is logged in
+    if (req.isAuthenticated()) {
+        Codecamp.findById(req.params.id, function (err, foundCodecamp) {
+            if (err) {
+                res.redirect("back")
+            } else {
+                // check if user own the codecamp (codecamp created by user)
+                if (foundCodecamp.author.id.equals(req.user._id)) {
+                    next();
+                } else {
+                    res.redirect("back")
+                }
+            }
+        });
+    } else {
+        res.redirect("back");
+    }
 }
 
 module.exports = router;
