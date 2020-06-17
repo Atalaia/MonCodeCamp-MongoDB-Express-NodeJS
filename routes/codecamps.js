@@ -1,6 +1,7 @@
 var express = require("express");
 var router = express.Router();
 var Codecamp = require("../models/codecamp");
+var Comment = require("../models/comment");
 
 // ====================
 // CODE CAMPS ROUTES
@@ -80,6 +81,23 @@ router.put("/:id", function (req, res) {
             // redirect to show page
             res.redirect("/codecamps/" + req.params.id);
         }
+    });
+});
+
+// Destroy code camp route
+router.delete("/:id", function (req, res) {
+    Codecamp.findByIdAndRemove(req.params.id, function (err, codecampRemoved) {
+        if (err) {
+            console.log(err);
+            res.redirect("/codecamps");
+        }
+        // delete any associated comments when deleting a code camp
+        Comment.deleteMany({ _id: { $in: codecampRemoved.comments } }, function (err) {
+            if (err) {
+                console.log(err);
+            }
+            res.redirect("/codecamps");
+        });
     });
 });
 
