@@ -23,9 +23,10 @@ router.post("/register", function (req, res) {
     User.register(newUser, req.body.password, function (err, user) {
         if (err) {
             console.log(err);
-            return res.render("register");
+            return res.render("register", { "error": err.message });
         }
         passport.authenticate("local")(req, res, function () {
+            req.flash("success", "Welcome to MonCodeCamp " + user.username);
             res.redirect("/codecamps");
         });
     });
@@ -48,15 +49,8 @@ router.post("/login", passport.authenticate("local",
 // add logout route logic
 router.get("/logout", function (req, res) {
     req.logout();
+    req.flash("success", "You have logged out successfully!");
     res.redirect("/codecamps");
 });
-
-// middleware
-function isLoggedIn(req, res, next) {
-    if (req.isAuthenticated()) {
-        return next();
-    }
-    res.redirect("/login");
-}
 
 module.exports = router;

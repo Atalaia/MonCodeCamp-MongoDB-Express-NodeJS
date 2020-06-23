@@ -31,6 +31,7 @@ router.post("/", middleware.isLoggedIn, function (req, res) {
             console.log(req.body.comment);
             Comment.create(req.body.comment, function (err, comment) {
                 if (err) {
+                    req.flash("error", "Something went wrong");
                     console.log(err);
                 } else {
                     // add username and id to comment
@@ -42,6 +43,7 @@ router.post("/", middleware.isLoggedIn, function (req, res) {
                     codecamp.comments.push(comment);
                     codecamp.save();
                     console.log(comment);
+                    req.flash("success", "Successfully added comment");
                     res.redirect("/codecamps/" + codecamp._id);
                 }
             });
@@ -67,8 +69,10 @@ router.get("/:comment_id/edit", middleware.checkCommentOwnership, function (req,
 router.put("/:comment_id", middleware.checkCommentOwnership, function (req, res) {
     Comment.findByIdAndUpdate(req.params.comment_id, req.body.comment, function (err, updatedComment) {
         if (err) {
+            req.flash("error", "Sorry. Something went wrong. An error has occurred.");
             res.redirect("back");
         } else {
+            req.flash("success", "Successfully updated comment");
             res.redirect("/codecamps/" + req.params.id);
         }
     });
@@ -78,8 +82,10 @@ router.put("/:comment_id", middleware.checkCommentOwnership, function (req, res)
 router.delete("/:comment_id", middleware.checkCommentOwnership, function (req, res) {
     Comment.findByIdAndRemove(req.params.comment_id, function (err) {
         if (err) {
+            req.flash("error", "Sorry. Something went wrong. An error has occurred.");
             res.redirect("back");
         } else {
+            req.flash("success", "Successfully deleted comment");
             res.redirect("/codecamps/" + req.params.id);
         }
     });

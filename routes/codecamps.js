@@ -37,6 +37,7 @@ router.post("/", middleware.isLoggedIn, function (req, res) {
         } else {
             console.log("NEWLY CREATED CODE CAMP: ");
             console.log(newlyCreated);
+            req.flash("success", "Successfully added code camp");
             res.redirect("/codecamps");
         }
     });
@@ -76,6 +77,7 @@ router.put("/:id", middleware.checkCodecampOwnership, function (req, res) {
             res.redirect("/codecamps");
         } else {
             // redirect to show page
+            req.flash("success", "Successfully updated code camp");
             res.redirect("/codecamps/" + req.params.id);
         }
     });
@@ -93,6 +95,7 @@ router.delete("/:id", middleware.checkCodecampOwnership, function (req, res) {
             if (err) {
                 console.log(err);
             }
+            req.flash("success", "Successfully deleted code camp");
             res.redirect("/codecamps");
         });
     });
