@@ -2,6 +2,7 @@ var express = require("express");
 var router = express.Router();
 var Codecamp = require("../models/codecamp");
 var Comment = require("../models/comment");
+var middleware = require("../middleware");
 
 // ====================
 // CODE CAMPS ROUTES
@@ -20,7 +21,7 @@ router.get("/", function (req, res) {
 });
 
 // CREATE - add new code camp to database
-router.post("/", isLoggedIn, function (req, res) {
+router.post("/", middleware.isLoggedIn, function (req, res) {
     var name = req.body.name;
     var image = req.body.image;
     var desc = req.body.description;
@@ -42,7 +43,7 @@ router.post("/", isLoggedIn, function (req, res) {
 });
 
 // NEW - show form to create new code camp
-router.get("/new", isLoggedIn, function (req, res) {
+router.get("/new", middleware.isLoggedIn, function (req, res) {
     res.render("codecamps/new.ejs");
 });
 
@@ -61,14 +62,14 @@ router.get("/:id", function (req, res) {
 });
 
 // Edit code camp route - form edit
-router.get("/:id/edit", checkCodecampOwnership, function (req, res) {
+router.get("/:id/edit", middleware.checkCodecampOwnership, function (req, res) {
     Codecamp.findById(req.params.id, function (err, foundCodecamp) {
         res.render("codecamps/edit", { codecamp: foundCodecamp });
     });
 });
 
 // Update code camp route
-router.put("/:id", checkCodecampOwnership, function (req, res) {
+router.put("/:id", middleware.checkCodecampOwnership, function (req, res) {
     // find and update the correct code camp
     Codecamp.findByIdAndUpdate(req.params.id, req.body.codecamp, function (err, updatedCodecamp) {
         if (err) {
@@ -81,7 +82,7 @@ router.put("/:id", checkCodecampOwnership, function (req, res) {
 });
 
 // Destroy code camp route
-router.delete("/:id", checkCodecampOwnership, function (req, res) {
+router.delete("/:id", middleware.checkCodecampOwnership, function (req, res) {
     Codecamp.findByIdAndRemove(req.params.id, function (err, codecampRemoved) {
         if (err) {
             console.log(err);
@@ -96,33 +97,5 @@ router.delete("/:id", checkCodecampOwnership, function (req, res) {
         });
     });
 });
-
-// middleware
-function isLoggedIn(req, res, next) {
-    if (req.isAuthenticated()) {
-        return next();
-    }
-    res.redirect("/login");
-}
-
-function checkCodecampOwnership(req, res, next) {
-    // check if user is logged in
-    if (req.isAuthenticated()) {
-        Codecamp.findById(req.params.id, function (err, foundCodecamp) {
-            if (err) {
-                res.redirect("back")
-            } else {
-                // check if user own the codecamp (codecamp created by user)
-                if (foundCodecamp.author.id.equals(req.user._id)) {
-                    next();
-                } else {
-                    res.redirect("back")
-                }
-            }
-        });
-    } else {
-        res.redirect("back");
-    }
-}
 
 module.exports = router;
