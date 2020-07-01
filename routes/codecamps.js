@@ -23,13 +23,14 @@ router.get("/", function (req, res) {
 // CREATE - add new code camp to database
 router.post("/", middleware.isLoggedIn, function (req, res) {
     var name = req.body.name;
+    var price = req.body.price;
     var image = req.body.image;
     var desc = req.body.description;
     var author = {
         id: req.user._id,
         username: req.user.username
     }
-    var newCodeCamp = { name: name, image: image, description: desc, author: author };
+    var newCodeCamp = { name: name, price: price, image: image, description: desc, author: author };
     // Create a new code camp and save to DB
     Codecamp.create(newCodeCamp, function (err, newlyCreated) {
         if (err) {
