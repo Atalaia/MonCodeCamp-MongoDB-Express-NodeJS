@@ -10,14 +10,30 @@ var middleware = require("../middleware");
 
 // INDEX - Show all code camps
 router.get("/", function (req, res) {
-    // Get all code camps from DB
-    Codecamp.find({}, function (err, allCodecamps) {
-        if (err) {
-            console.log(err);
-        } else {
-            res.render("codecamps/index", { codecamps: allCodecamps });
-        }
-    });
+    var noMatch = null;
+    if (req.query.search) {
+        const regex = new RegExp(escapeRegex(req.query.search), 'gi');
+        // Get all code camps matching query search
+        Codecamp.find({ name: regex }, function (err, allCodecamps) {
+            if (err) {
+                console.log(err);
+            } else {
+                if (allCodecamps.length < 1) {
+                    noMatch = "No coding bootcamps match that query. Please try again.";
+                }
+                res.render("codecamps/index", { codecamps: allCodecamps, noMatch: noMatch });
+            }
+        });
+    } else {
+        // Get all code camps from DB
+        Codecamp.find({}, function (err, allCodecamps) {
+            if (err) {
+                console.log(err);
+            } else {
+                res.render("codecamps/index", { codecamps: allCodecamps, noMatch: noMatch });
+            }
+        });
+    }
 });
 
 // CREATE - add new code camp to database
@@ -101,5 +117,9 @@ router.delete("/:id", middleware.checkCodecampOwnership, function (req, res) {
         });
     });
 });
+
+function escapeRegex(text) {
+    return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+};
 
 module.exports = router;
