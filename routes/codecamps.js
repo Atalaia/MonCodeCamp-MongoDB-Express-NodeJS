@@ -45,7 +45,7 @@ router.post("/", middleware.isLoggedIn, function (req, res) {
     var author = {
         id: req.user._id,
         username: req.user.username
-    }
+    };
     var newCodeCamp = { name: name, price: price, image: image, description: desc, author: author };
     // Create a new code camp and save to DB
     Codecamp.create(newCodeCamp, function (err, newlyCreated) {

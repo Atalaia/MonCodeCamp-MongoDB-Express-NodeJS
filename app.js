@@ -1,3 +1,6 @@
+// configure dotenv
+require('dotenv').config();
+
 var express = require("express");
 var app = express();
 var bodyParser = require("body-parser");
@@ -16,7 +19,7 @@ var indexRoutes = require("./routes/index");
 var codecampsRoutes = require("./routes/codecamps");
 var commentRoutes = require("./routes/comments");
 
-mongoose.connect("YOUR_MONGODB_CONNECTION_STRING", {
+mongoose.connect(process.env.MONGODB, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 });
@@ -26,7 +29,9 @@ app.set("view engine", "ejs");
 app.use(express.static(__dirname + "/public"));
 app.use(methodOverride('_method'));
 app.use(flash());
+//require moment
 app.locals.moment = require('moment');
+
 // seedDB(); // seed the database
 
 // PASSPORT CONFIGURATION
